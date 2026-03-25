@@ -12,6 +12,9 @@ An AI-powered web application that detects brain tumors from MRI scans and expla
 ## 📦 Model
 👉 https://huggingface.co/your-username/brain-tumor-model
 
+## 📄 Mini-Research Paper
+👉 [View Full Paper](brain_tumor_mini_research_paper.pdf)
+
 ---
 
 ## 📌 Features
