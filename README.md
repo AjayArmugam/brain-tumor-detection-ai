@@ -1,102 +1,68 @@
-import gradio as gr
-import tensorflow as tf
-import numpy as np
-import cv2
-from PIL import Image
-import time
+# 🧠 Brain Tumor Detection with Explainable AI
 
-model = tf.keras.models.load_model("brain_tumor_model.h5")
+An AI-powered web application that detects brain tumors from MRI scans and explains predictions using Grad-CAM.
 
-class_names = ['glioma', 'meningioma', 'notumor', 'pituitary']
+---
 
-def predict_and_explain(img):
+## 🚀 Live Demo
+👉 https://your-huggingface-link
 
-    # Simulate loading (for spinner UX)
-    time.sleep(1)
+---
 
-    img = img.resize((224,224))
-    img_array = np.array(img)
-    img_array = np.expand_dims(img_array, axis=0)
+## 📌 Features
 
-    prediction = model.predict(img_array)
-    class_idx = np.argmax(prediction)
-    confidence = float(np.max(prediction))
-    label = class_names[class_idx]
+- 🧠 Brain tumor classification (4 classes)
+- 🔥 Explainable AI using Grad-CAM
+- 🌐 Web-based interface (Gradio)
+- 📊 Confidence score visualization
+- 🎯 Real-time prediction
 
-    # 🎯 Badge + color logic
-    if label == "notumor":
-        badge = "🟢 No Tumor Detected"
-        color = "green"
-    else:
-        badge = "🔴 Tumor Detected"
-        color = "red"
+---
 
-    result_text = f"<h2 style='color:{color}'>{badge}</h2>"
+## 🧠 Classes
 
-    # Grad-CAM
-    base_model = model.get_layer("efficientnetb0")
-    last_conv_layer = base_model.get_layer("top_conv")
+- Glioma
+- Meningioma
+- Pituitary Tumor
+- No Tumor
 
-    grad_model = tf.keras.models.Model(
-        inputs=model.input,
-        outputs=[last_conv_layer.output, model.output]
-    )
+---
 
-    with tf.GradientTape() as tape:
-        conv_outputs, predictions = grad_model(img_array)
-        loss = predictions[:, class_idx]
+## ⚙️ Tech Stack
 
-    grads = tape.gradient(loss, conv_outputs)
-    pooled_grads = tf.reduce_mean(grads, axis=(0,1,2))
+- Python
+- TensorFlow / Keras
+- EfficientNetB0
+- Gradio
+- OpenCV
+- NumPy
 
-    conv_outputs = conv_outputs[0]
-    heatmap = conv_outputs @ pooled_grads[..., tf.newaxis]
-    heatmap = tf.squeeze(heatmap)
+---
 
-    heatmap = tf.maximum(heatmap, 0) / tf.math.reduce_max(heatmap)
+## 🧪 Model Details
 
-    # Overlay
-    img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-    heatmap = cv2.resize(heatmap, (224,224))
-    heatmap = np.uint8(255 * heatmap)
-    heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
+- Architecture: EfficientNetB0
+- Accuracy: ~94.7%
+- Dataset: Brain MRI Dataset (Kaggle)
 
-    output_img = cv2.addWeighted(img_cv, 0.6, heatmap, 0.4, 0)
+---
 
-    return result_text, label, confidence, output_img
+## 🔍 Explainable AI
 
-# 🎨 UI DESIGN
-with gr.Blocks(theme=gr.themes.Soft()) as demo:
+Grad-CAM is used to visualize:
+- 🔴 Important regions (high attention)
+- 🔵 Less important regions
 
-    gr.Markdown("""
-    # 🧠 Brain Tumor Detection AI
-    ### Upload MRI scan for prediction & explanation
-    """)
+---
 
-    with gr.Row():
-        with gr.Column():
-            image_input = gr.Image(type="pil", label="Upload MRI Scan")
-            submit_btn = gr.Button("🔍 Analyze", variant="primary")
+## ⚠️ Disclaimer
 
-        with gr.Column():
-            badge_output = gr.HTML(label="Result")
-            prediction_text = gr.Textbox(label="Prediction")
-            confidence_text = gr.Number(label="Confidence")
-            output_image = gr.Image(label="Grad-CAM Explanation")
+This project is for educational purposes only and should not be used for medical diagnosis.
 
-    gr.Markdown("""
-    ## 📘 About
-    🔴 Red = important regions  
-    🔵 Blue = less important  
+---
 
-    ⚠️ This is for educational purposes only.
-    """)
+## 📦 Installation
 
-    submit_btn.click(
-        fn=predict_and_explain,
-        inputs=image_input,
-        outputs=[badge_output, prediction_text, confidence_text, output_image],
-        show_progress=True   # 🔥 spinner enabled
-    )
-
-demo.launch(server_name="0.0.0.0", server_port=7860)
+```bash
+pip install -r requirements.txt
+python app.py
