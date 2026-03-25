@@ -5,7 +5,7 @@ An AI-powered web application that detects brain tumors from MRI scans and expla
 ---
 
 ## 🚀 Live Demo
-👉 https://your-huggingface-link
+👉 https://huggingface.co/spaces/AjayArmugam/brain-tumor-ai
 
 ---
 
